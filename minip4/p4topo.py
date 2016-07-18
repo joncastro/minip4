@@ -385,11 +385,13 @@ class P4Topo(object):
                 continue
             for cmd in host['command']:
                 print "host ({}) executing {}".format(name, cmd)
-                host.cmd(cmd)
+                net.get(name).cmd(cmd)
 
         # execute switch command parameters
         for name in self.switches:
             switch = self.switches[name]
+            if switch['commands'] is None:
+                continue
             cmd = [switch['cli'],
                    "--json", switch['p4json'],
                    "--thrift-port", str(switch['port'])]
