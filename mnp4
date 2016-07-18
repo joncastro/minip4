@@ -1,0 +1,9 @@
+#!/usr/bin/python
+
+import sys
+
+from minip4.shell import Shell
+
+
+if __name__ == "__main__":
+    Shell()
