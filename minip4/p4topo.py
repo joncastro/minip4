@@ -381,6 +381,15 @@ class P4Topo(object):
         # execute host command parameters
         for name in self.hosts:
             host = self.hosts[name]
+
+            # p4_mininet P4Host rename the interface to eth0
+            # see: self.defaultIntf().rename("eth0") on P4Host
+            # The host lost the gw after the interface is renamed
+            # so we execute following command to ensure provided
+            # gw is configured in the host
+            if 'gw' in host:
+                net.get(name).cmd("route add default gw {}".format(host['gw']))
+
             if 'command' not in host:
                 continue
             for cmd in host['command']:
