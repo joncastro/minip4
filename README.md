@@ -102,7 +102,7 @@ Optional parameters:
 
 All default **host** parameters and following ones:
 
-- `mac`: if not provided and the name contains a number, the number of the name will be used and converted to mac address. For example, if name is `h101` then mac address is `00:00:00:00:00:65`. Notice `65` is the hex representation of `101`.
+- `mac`: if not provided and the name contains a digits, the mac will use the number of concatenating all digits and converted to mac address. For example, if name is `h101c1` then mac address is `00:00:00:00:03:F3`. Notice `0x03:F3` is the hex representation of `1011`. If not, a random mac address will be calculated.
 
 ### Switches
 
@@ -116,7 +116,7 @@ Optional parameters if provided on defaults:
 
 All default **switch** parameters and following ones:
 
-- `id`: if not provided and the name contains a number, the number of the name will be used. For example, if name is `s101`, 101 will be used as `id`
+- `id`: if not provided and the name contains a digits, the id will be the number of concatenating all digits. For example, if name is `s101c2`, 1012 will be used as `id`. If not, a random id will be calculated.
 - `port`: thrift port
 
 ### Links

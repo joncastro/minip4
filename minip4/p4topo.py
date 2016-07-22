@@ -15,9 +15,6 @@ from mininet.cli import CLI
 from p4_mininet import P4Switch, P4Host
 
 
-_DEVICE_ID_PATTERN = re.compile('[^\d*](\d+).*')
-
-
 def convert_mac_to_int(mac):
     """ returns a mac address as an int
 
@@ -37,28 +34,56 @@ def convert_int_to_mac(mac):
     blocks = [mac_to_hex[x:x + 2] for x in xrange(0, len(mac_to_hex), 2)]
     return ':'.join(blocks)
 
+_HOSTS_LIST = [int(0)]
+
 
 def get_mac(name):
-    """ returns the mac address base of the host name. It use the first number inside the host name
+    """ returns the mac address base of the host name. It uses all digits
+        inside the host name if exists.
 
     Args:
         name (str): host name
     """
     id = get_device_id(name)
-    if id is not None:
-        return convert_int_to_mac(id)
+    if id is None or int(id) in _HOSTS_LIST:
+        id = max(_HOSTS_LIST) + 1
+    _HOSTS_LIST.append(int(id))
+
+    return convert_int_to_mac(id)
 
 
-def get_device_id(name):
-    """ returns the number inside the given name if exists
+_DEVICE_LIST = [int(0)]
+
+
+def get_switch_id(name):
+    """ returns the switch id base of the host name. It uses all digits
+        inside the host name if exists.
 
     Args:
         name (str): device name
     """
-    m = _DEVICE_ID_PATTERN.match(name)
-    if m is not None:
-        return m.group(1)
-    return None
+    id = get_device_id(name)
+    if id is None or int(id) in _DEVICE_LIST:
+        id = max(_DEVICE_LIST) + 1
+    _DEVICE_LIST.append(int(id))
+    return id
+
+
+def get_device_id(name):
+    """ returns the number using all the digits in the name.
+
+    Args:
+        name (str): device name
+    """
+    value = None
+    for s in name:
+        if s.isdigit():
+            if value is None:
+                value = '' + s
+            else:
+                value = value + s
+
+    return value
 
 
 def wait_for_port(port, retries=10):
@@ -173,8 +198,6 @@ class P4Topo(object):
         if 'switch' not in self.props or self.props['switch'] is None:
             raise ValueError("switches not found in the topology")
 
-        device_ids = []
-
         # calculate switch defaults parameters
         sw_defaults = {}
         if 'switch' in self.defaults:
@@ -255,15 +278,8 @@ class P4Topo(object):
             if 'verbose' not in switch:
                 switch['verbose'] = default_verbose
 
-            if 'id' not in switch or switch['id'] in device_ids:
-                device_id = get_device_id(name)
-                if device_id is None or device_id in device_ids:
-                    if len(device_ids) == 0:
-                        device_id = 1
-                    else:
-                        device_id = max(device_ids) + 1
-                    device_ids.append(device_id)
-                switch['id'] = device_id
+            if 'id' not in switch:
+                switch['id'] = get_switch_id(name)
 
             default_port = default_port + 1
 
