@@ -20,23 +20,12 @@ class Shell(object):
                             type=str,
                             action="store",
                             required=False)
-        parser.add_argument('-b', '--bmv2',
-                            help='Path behavioral model base folder',
-                            type=str,
-                            action="store",
-                            required=False)
-        parser.add_argument('-c', '--p4c',
-                            help='Path to p4compiler base folder',
-                            type=str,
-                            action="store",
-                            required=False)
 
         args = parser.parse_args()
 
         p4topo = P4Topo(args.topology,
-                        p4src=args.p4src,
-                        bmv2=args.bmv2,
-                        p4c=args.p4c)
+                        p4src=args.p4src)
+
         p4topo.start()
 
 

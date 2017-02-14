@@ -112,7 +112,7 @@ def wait_for_port(port, retries=10):
 class P4Topo(object):
     """ Mininet network based on P4 switches """
 
-    def __init__(self, file, p4src=None, bmv2=None, p4c=None):
+    def __init__(self, file, p4src=None):
         """ create Mininet P4 topology base on given topology yaml file
 
         Args:
@@ -120,9 +120,9 @@ class P4Topo(object):
 
         Kwargs:
             p4src (str): default p4 source file
-            bmv2 (str): bmv2 base path
-            p4c (str): p4c base path
         """
+
+        self.p4src = p4src
 
         # create default variables
         self.hosts = {}
@@ -131,10 +131,6 @@ class P4Topo(object):
         self.portmap = {}
         self.host_connected_switch = {}
         self.p4_src_json = {}
-
-        self.p4src = p4src
-        self.bmv2 = bmv2
-        self.p4c = p4c
 
         # read given yaml file
         self.props = None
@@ -203,29 +199,11 @@ class P4Topo(object):
         if 'switch' in self.defaults:
             sw_defaults = self.defaults['switch']
 
-        default_bmv2 = self.bmv2
-        if default_bmv2 is None and 'BMV2_PATH' in os.environ:
-            default_bmv2 = os.environ['BMV2_PATH']
-        if default_bmv2 is None:
-            default_bmv2 = '../bmv2'
-
-        default_p4c = self.p4c
-        if default_p4c is None and 'P4C_BM_PATH' in os.environ:
-            default_p4c = os.environ['P4C_BM_PATH']
-        if default_p4c is None:
-            default_p4c = '../p4c-bmv2'
-
         default_p4src = self.p4src
         default_dump = True
         default_port = 22222
         default_verbose = 'info'
         default_commands = None
-
-        if self.bmv2 is None and 'bmv2' in sw_defaults:
-            default_bmv2 = sw_defaults['bmv2']
-
-        if self.p4c is None and 'p4c' in sw_defaults:
-            default_p4c = sw_defaults['p4c']
 
         if default_p4src is None and 'p4src' in sw_defaults:
             default_p4src = sw_defaults['p4src']
@@ -246,20 +224,14 @@ class P4Topo(object):
             name = switch['name']
             self.switches[name] = switch
 
-            if 'bmv2' not in switch:
-                switch['bmv2'] = default_bmv2
-
             if 'sw_path' not in switch:
-                switch['sw_path'] = switch['bmv2'] + '/targets/simple_switch/simple_switch'
+                switch['sw_path'] = 'simple_switch'
 
             if 'cli' not in switch:
-                switch['cli'] = switch['bmv2'] + '/tools/runtime_CLI.py'
-
-            if 'p4c' not in switch:
-                switch['p4c'] = default_p4c
+                switch['cli'] = 'runtime_CLI.py'
 
             if 'compiler' not in switch:
-                switch['compiler'] = switch['p4c'] + '/p4c_bm/__main__.py'
+                switch['compiler'] = 'p4c-bmv2'
 
             if 'p4src' not in switch:
                 switch['p4src'] = default_p4src
@@ -339,11 +311,11 @@ class P4Topo(object):
                 raise ValueError("p4 source file for switch {} not provided".format(name))
             if not os.path.isfile(p4src):
                 raise ValueError("p4 source file {} for switch {} not found".format(p4src, name))
-            if not os.path.isfile(cli):
-                raise ValueError("cli file {} for switch {} not found".format(cli, name))
+            if not which(cli):
+                raise ValueError("cli command {} for switch {} not found".format(cli, name))
             if commands is not None and not os.path.isfile(commands):
                 raise ValueError("commands file {} for switch {} not found ".format(commands, name))
-            if not os.path.isfile(sw_path):
+            if not which(sw_path):
                 raise ValueError("switch path {} for switch {} not found ".format(sw_path, name))
 
             if p4src not in self.p4_src_json:
@@ -432,3 +404,24 @@ class P4Topo(object):
 
         CLI(net)
         net.stop()
+
+
+
+# check if executable exits
+def which(program):
+    import os
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
