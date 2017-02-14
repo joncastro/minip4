@@ -12,6 +12,7 @@ setup(
     description='Mininet utility for P4',
     license='LICENSE',
     install_requires=[
+        'pyyaml'
     ],
     entry_points={
         'console_scripts': [
