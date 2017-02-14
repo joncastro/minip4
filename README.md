@@ -11,7 +11,7 @@ MiniP4 is a python utility to quickly create a Mininet network using [P4](https:
 ### From source
 
 ```
-git clone https://github.com/p4kide/minip4
+git clone https://github.com/joncastro/minip4
 cd minip4
 sudo python setup.py install
 ```

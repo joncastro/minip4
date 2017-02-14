@@ -5,7 +5,7 @@ setup(
     zip_safe=True,
     name='minip4',
     version='1.0',
-    author='p4kide',
+    author='Jon Castro',
     packages=[
         'minip4'
     ],
