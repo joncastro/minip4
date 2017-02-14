@@ -21,7 +21,10 @@ class P4Host(Host):
     def config(self, **params):
         r = super(Host, self).config(**params)
 
-        self.defaultIntf().rename("eth0")
+        ## TODO understand why default interface is renamed
+        ## if default interface is renamed then stopping
+        ## mininet does not clean up interfaces
+        #self.defaultIntf().rename("eth0")
 
         for off in ["rx", "tx", "sg"]:
             cmd = "/sbin/ethtool --offload eth0 %s off" % off
