@@ -1,7 +1,14 @@
+#!/bin/sh
+
+
 sudo apt-get update
 type git || sudo apt-get install git -y
 type python || sudo apt-get install python python-dev python-setuptools -y
 type pip || sudo apt-get install python-pip -y
+
+cd /vagrant
+sudo pip install -r requirements.txt
+sudo python setup.py install
 
 cd ~
 
